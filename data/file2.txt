@@ -1,0 +1,10 @@
+There is a pattern to our pipeline functions:
+
+-stages close their outbound channels when all the send operations are done.
+-stages keep receiving values from inbound channels until those channels are closed.
+-This pattern allows each receiving stage to be written as a range loop and ensures that all goroutines exit once all values have been successfully sent downstream.
+
+But in real pipelines, stages don't always receive all the inbound values. 
+Sometimes this is by design: the receiver may only need a subset of values to make progress. 
+More often, a stage exits early because an inbound value represents an error in an earlier stage. 
+In either case the receiver should not have to wait for the remaining values to arrive, and we want earlier stages to stop producing values that later stages don't need.

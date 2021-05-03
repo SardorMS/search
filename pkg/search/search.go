@@ -69,6 +69,7 @@ func All(ctx context.Context, phrase string, files []string) <-chan []Result {
 	return ch
 }
 
+//Any - searches anyone phrase entries in files (text files).
 func Any(ctx context.Context, phrase string, files []string) <-chan []Result {
 
 	ch := make(chan []Result)

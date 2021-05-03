@@ -70,19 +70,18 @@ func All(ctx context.Context, phrase string, files []string) <-chan []Result {
 }
 
 //Any - searches anyone phrase entries in files (text files).
-func Any(ctx context.Context, phrase string, files []string) <-chan []Result {
+func Any(ctx context.Context, phrase string, files []string) <-chan Result {
 
-	ch := make(chan []Result)
+	ch := make(chan Result)
 	wg := sync.WaitGroup{}
 	ctx, cancel := context.WithCancel(ctx)
 
 	for i := 0; i < len(files); i++ {
 		wg.Add(1)
 
-		go func(ctx context.Context, path string, ch chan<- []Result) {
+		go func(ctx context.Context, path string, ch chan<- Result) {
 			defer wg.Done()
-
-			results := []Result{}
+			
 			data, err := os.ReadFile(path)
 			if err != nil {
 				log.Print("can not open the file:", err)
@@ -103,8 +102,7 @@ func Any(ctx context.Context, phrase string, files []string) <-chan []Result {
 							LineNum: int64(index + 1),
 							ColNum:  int64(strings.Index(line, phrase) + 1),
 						}
-						results = append(results, result)
-						ch <- results
+						ch <- result
 						cancel()
 					}
 				}
